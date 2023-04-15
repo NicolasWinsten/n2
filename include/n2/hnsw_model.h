@@ -97,6 +97,7 @@ public:
     Mmap* model_mmap_ = nullptr;
 
     std::vector<std::vector<std::pair<int, float>>*> knnsets_;
+    bool loadedFromDisk;
 };
 
 } // namespace n2

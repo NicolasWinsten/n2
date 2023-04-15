@@ -96,6 +96,7 @@ HnswModel::HnswModel(const vector<HnswNode*> nodes, int enterpoint_id, int max_m
             nodes[i]->knnset_.pop();
         }
         knnsets_.push_back(knns);
+        loadedFromDisk = false;
     }
 }
 
@@ -127,6 +128,7 @@ HnswModel::HnswModel(const std::string& fname, const bool use_mmap) {
     }
 
     LoadConfigFromModel();
+    loadedFromDisk = true;
 }
 
 HnswModel::~HnswModel() {

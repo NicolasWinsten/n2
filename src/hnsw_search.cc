@@ -237,6 +237,7 @@ void HnswSearchImpl<DistFuncType>::SearchByIdV2_(int cur_node_id, float cur_dist
     unsigned int* visited = visited_list_->GetVisited();
     visited[cur_node_id] = visited_mark;
 
+    if (model_->loadedFromDisk == false)
     for (auto neigh : *model_->knnsets_.at(cur_node_id)) {
         candidates.emplace(neigh.first, neigh.second);
         found_distances.emplace(neigh.second);
