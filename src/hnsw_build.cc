@@ -315,6 +315,12 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
         priority_queue<FurtherFirst> next_enterpoints = result;
         while (next_enterpoints.size() > 0) {
             auto* top_node = next_enterpoints.top().GetNode();
+            if (i == 0) { // on the last layer, take the search results and store them
+                float dist = next_enterpoints.top().GetDistance();
+                qnode->refineKNN(top_node, dist);
+                top_node->refineKNN(qnode, dist);
+            }
+            
             next_enterpoints.pop();
             enterpoints.push_back(top_node);
         }

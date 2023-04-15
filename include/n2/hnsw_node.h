@@ -17,10 +17,14 @@
 #include <cstdint>
 #include <mutex>
 #include <vector>
+#include <queue>
 
 #include "data.h"
+#include "sort.h"
 
 namespace n2 {
+
+class FurtherFirst;
 
 class HnswNode {
 public:
@@ -41,6 +45,21 @@ public:
     }
     inline std::mutex& GetAccessGuard() { return access_guard_; }
 
+    std::priority_queue<FurtherFirst> knnset_;
+    // initial knnsets for a node built during construction
+    void refineKNN(HnswNode* candidate, float dist) {
+        // add lock here
+        std::unique_lock<std::mutex> local_lock(knnset_guard_);
+        if (knnset_.size() < 100 || knnset_.top().GetDistance() > dist) {
+            // maybe add it here instead?
+            // unique_lock<mutex> local_lock(knnset_guard_);
+            knnset_.emplace(candidate,dist);
+            if (knnset_.size() > 100) knnset_.pop();
+        }
+    }
+
+    //void refineKNN(HnswNode* candidate, float dist);
+
 private:
     void CopyLinksToOptIndex(char* mem_offset, int level) const;
 
@@ -52,7 +71,9 @@ private:
     size_t max_m0_;
 
     std::vector<std::vector<HnswNode*>> friends_at_layer_;
+
     std::mutex access_guard_;
+    std::mutex knnset_guard_;
 };
 
 } // namespace n2

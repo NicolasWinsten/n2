@@ -95,6 +95,8 @@ public:
     uint64_t memory_per_node_higher_level_;
     
     Mmap* model_mmap_ = nullptr;
+
+    std::vector<std::vector<std::pair<int, float>>*> knnsets_;
 };
 
 } // namespace n2

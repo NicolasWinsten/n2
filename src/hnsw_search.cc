@@ -29,6 +29,7 @@ using std::runtime_error;
 using std::shared_ptr;
 using std::unique_ptr;
 using std::vector;
+using std::pair;
 
 unique_ptr<HnswSearch> HnswSearch::GenerateSearcher(shared_ptr<const HnswModel> model, size_t data_dim,
                                                     DistanceKind metric) {
@@ -235,6 +236,12 @@ void HnswSearchImpl<DistFuncType>::SearchByIdV2_(int cur_node_id, float cur_dist
     unsigned int visited_mark = visited_list_->GetVisitMark();
     unsigned int* visited = visited_list_->GetVisited();
     visited[cur_node_id] = visited_mark;
+
+    for (auto neigh : *model_->knnsets_.at(cur_node_id)) {
+        candidates.emplace(neigh.first, neigh.second);
+        found_distances.emplace(neigh.second);
+        visited[neigh.first] = visited_mark;
+    }
 
     if (ensure_k and !result.empty()) {
         if (not PrepareEnsureKSearch(cur_node_id, result, visited_nodes)) {

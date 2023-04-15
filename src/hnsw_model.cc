@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 
 #include "n2/mmap.h"
 
@@ -32,6 +33,7 @@ using std::shared_ptr;
 using std::string;
 using std::to_string;
 using std::vector;
+using std::pair;
 
 shared_ptr<const HnswModel> HnswModel::GenerateModel(const vector<HnswNode*> nodes, int enterpoint_id, 
                                                      int max_m, int max_m0, DistanceKind metric, int max_level,
@@ -42,7 +44,7 @@ shared_ptr<const HnswModel> HnswModel::GenerateModel(const vector<HnswNode*> nod
 
 HnswModel::HnswModel(const vector<HnswNode*> nodes, int enterpoint_id, int max_m, int max_m0, DistanceKind metric,
                      int max_level, size_t data_dim)
-        : enterpoint_id_(enterpoint_id), max_level_(max_level), data_dim_(data_dim), metric_(metric) {
+        : enterpoint_id_(enterpoint_id), max_level_(max_level), data_dim_(data_dim), metric_(metric) /*, knnsets_(nodes.size())*/ {
 
     uint64_t total_level = 0;
     for (const auto& node : nodes) {
@@ -83,6 +85,17 @@ HnswModel::HnswModel(const vector<HnswNode*> nodes, int enterpoint_id, int max_m
         } else {
             nodes[i]->CopyDataAndLevel0LinksToOptIndex(model_level0_ + i * memory_per_node_level0_, 0);
         }
+        
+        auto knns = new vector<pair<int, float>>;
+        //std::cout << "NODE " << i << " NEIGHBORS:" << std::endl;
+        while(nodes[i]->knnset_.size() > 0) {
+            int id = nodes[i]->knnset_.top().GetNode()->GetId();
+            float dist = nodes[i]->knnset_.top().GetDistance();
+            knns->push_back(std::make_pair(id,dist));
+            //std::cout << id << std::endl;
+            nodes[i]->knnset_.pop();
+        }
+        knnsets_.push_back(knns);
     }
 }
 

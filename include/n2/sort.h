@@ -18,6 +18,8 @@
 
 namespace n2 {
 
+class HnswNode;
+
 class FurtherFirst {
 public:
     FurtherFirst(HnswNode* node, float distance) : node_(node), distance_(distance) {}
