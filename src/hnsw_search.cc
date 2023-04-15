@@ -243,6 +243,7 @@ void HnswSearchImpl<DistFuncType>::SearchByIdV2_(int cur_node_id, float cur_dist
         found_distances.emplace(neigh.second);
         visited[neigh.first] = visited_mark;
     }
+    delete model_->knnsets_.at(cur_node_id);
 
     if (ensure_k and !result.empty()) {
         if (not PrepareEnsureKSearch(cur_node_id, result, visited_nodes)) {
